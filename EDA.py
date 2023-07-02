@@ -213,53 +213,23 @@ def plot_categorical_features_percentage(dataframe: pd.DataFrame,
                                          feature_of_interest:str = None, 
                                          file_name: str = None,
                                          **kwargs):
-    """
-    Plots bar plots of categorical columns of a dataframe and save specific indivual plots of interest.
-
-    Args:
-        dataframe (pd.DataFrame): dataframe of interest
-        ncols (int): number of columns in the plot grid (default = 3)
-        figsize (tuple): size of the figure (default = (20, 12)) 
-        plot_type (str): Type of plot to use (default = 'countplot')
-        individual_plot (bool): flag to go from all figures to specific figure of interest (False as default)
-        root_path (pathlib.Path): Root path for saving figure (Set as current working directory, by default) 
-        feature_of_interest (str): Feature name of interest 
-        file_name (str): name of the file to be created (not including extension, set on .png by default)
-        **kwargs: Keyword arguments to be passed to the seaborn countplot/barplot function.
     
-    Returns:
-        None
-    
-    Example usage: 
-        - all figures
-        plot_categorical_features_percentage(dataframe=dataframe, 
-                                              ncols=3, 
-                                              figsize=(20, 20), 
-                                              plot_type='countplot')
-        - plot of interest 
-        plot_categorical_features_percentage(dataframe = df, 
-                                              root_path = root_path, 
-                                              individual_plot = True, 
-                                              plot_type = 'barplot',
-                                              file_name = 'feature_of_interest',
-                                              feature_of_interest = 'Reporting Semester')
-    """
-    # If not individual plot is requested, every possible figure is generated
+   
     if not individual_plot:
-        # Keeping only categorical values
+       
         cat_attributes = dataframe.select_dtypes(include=['object', 'category'])
 
-        # Filter out columns with more than 10 unique categories
+       
         cat_attributes = cat_attributes.loc[:, cat_attributes.nunique() <= 10]
 
-        # Setting number of rows
+       
         nrows = (cat_attributes.shape[1] - 1) // ncols + 1
 
-        # Plotting data
+       
         fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=figsize)
         fig.subplots_adjust(hspace=0.6, wspace=0.4)
 
-        # Estimate number of figures
+       
         print(f'[Info] Around {nrows*ncols} figures to be created')
 
         for i, col in tqdm(enumerate(cat_attributes)):
@@ -287,33 +257,33 @@ def plot_categorical_features_percentage(dataframe: pd.DataFrame,
             ax.set_title(col, fontsize=12)
             ax.tick_params(axis='x', labelrotation=45, labelsize=10)
 
-        # Removing empty figures
+       
         if cat_attributes.shape[1] < nrows * ncols:
             for j in range(cat_attributes.shape[1], nrows * ncols):
                 fig.delaxes(axes.flat[j])
 
-        # Adjusting figure spacing
+       
         plt.tight_layout()
         plt.show()
-    # In case an individual figure is of interest 
+   
     if individual_plot: 
         
-        # It makes sure the path to save the figure indeed exists, if not it creates it. 
+       
         figure_path = root_path / 'figures'
         if figure_path.exists(): 
-            # print(f'[Info] {figure_path} already exists')
+           
             pass
         else: 
             figure_path.mkdir(exist_ok=True, parents = True )
-            # print(f'[Info] {figure_path} created sucessfully')
+           
         
-        # Handles the name of the file
+       
         file_name = file_name +'.png'
         figure_name = figure_path / file_name
         
-        # depending of the type of plot to be created
+       
         if plot_type == 'countplot':
-                # Creates the plot
+               
                 
             plot = sns.countplot(x = feature_of_interest, data = dataframe, **kwargs)
             plot.set_ylabel('Percentage')
@@ -329,7 +299,7 @@ def plot_categorical_features_percentage(dataframe: pd.DataFrame,
                 
         elif plot_type == 'barplot':
             
-            # Creates the plot           
+           
             plot = sns.barplot(x=feature_of_interest, y='count',
                             data=dataframe.groupby(feature_of_interest).size().reset_index(name='count'),
                             **kwargs)
@@ -343,7 +313,7 @@ def plot_categorical_features_percentage(dataframe: pd.DataFrame,
             plot.set_title(feature_of_interest, fontsize=12)
             plot.tick_params(axis='x', labelrotation=45, labelsize=10)
             
-            # saves it
+           
             plot = plot.get_figure()
             plot.savefig(figure_name, dpi=300, bbox_inches='tight', pad_inches=0.2)
             
